@@ -1,8 +1,136 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Gorilla";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+
+
+.gorilla .container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f2f2f2;
+}
+
+.gorilla .title {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.gorilla .input-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+    .gorilla .input-group label {
+        margin-right: 10px;
+    }
+
+    .gorilla .input-group input {
+        width: 200px;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+
+    .gorilla .input-group button {
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+
+.gorilla .result {
+    text-align: center;
+}
+
+    .gorilla .result p {
+        margin-bottom: 10px;
+    }
+
+.gorilla .quick-buttons {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+    .gorilla .quick-buttons button {
+        margin-right: 10px;
+    }
+
+#result {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+</style>
+
+
+<div class="container gorilla">
+    <h1 class="text-center">大猩猩</h1>
+    
+    <div class="row justify-content-center">
+        <div class="col-sm-8">
+            <div id="result" class="text-center"></div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center m-3">
+        <div class="col-sm-8">
+            <button class="btn btn-secondary mr-2" onclick="fillInput('呼叫大猩猩')">呼叫大猩猩</button>
+            <button class="btn btn-secondary" onclick="fillInput('猩猩數香蕉')">猩猩數香蕉</button>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-sm-8">
+            <div class="input-group mb-3">
+                <label class="input-group-text" for="something">請輸入指令:</label>
+                <input type="text" id="something" class="form-control">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" onclick="submitForm()">執行</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+
+
+<script>
+    function submitForm() {
+        var something = document.getElementById("something").value;
+        var result = document.getElementById("result");
+
+        fetch('/api/gorilla/todo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(something)
+        })
+            .then(response => response.text())
+            .then(data => {
+                result.textContent = data;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                result.textContent = "發生錯誤";
+            });
+    }
+
+    function fillInput(value) {
+        document.getElementById("something").value = value;
+    }
+</script>

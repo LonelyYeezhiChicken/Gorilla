@@ -21,16 +21,6 @@ namespace API.Helper
                     else
                         msg = $"{ChatGPT.CallChatGPT(q[1]).choices.FirstOrDefault().text}";
                 }
-                else if (something.StartsWith("猩猩知我心"))
-                {
-                    msg = "不如吃火雞";
-                }
-                else if (something.StartsWith("猩猩點名"))
-                {
-                    msg = @"1. 呼叫大猩猩
-2. 猩猩知我心
-3. 猩猩數香蕉";
-                }
                 else if (something.StartsWith("猩猩數香蕉"))
                 {
                     var q = Regex.Split(something, "猩猩數香蕉");
@@ -39,10 +29,6 @@ namespace API.Helper
                         msg = "你不給我香蕉要怎麼數?";
                     else
                         msg = GComputer(q[1]);
-                }
-                else if (something.StartsWith("猩猩你的樣子"))
-                {
-                    msg = "這是我年輕的樣子";
                 }
             }
             catch (Exception ex)
@@ -83,7 +69,5 @@ namespace API.Helper
 
             return req;
         }
-
-
     }
 }

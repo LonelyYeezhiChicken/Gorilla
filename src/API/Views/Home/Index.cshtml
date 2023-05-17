@@ -2,73 +2,9 @@
     ViewData["Title"] = "Gorilla";
 }
 
-<style>
-.gorilla .container {
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f2f2f2;
-}
-
-.gorilla .title {
-    text-align: center;
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
-.gorilla .input-group {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-    .gorilla .input-group label {
-        margin-right: 10px;
-    }
-
-    .gorilla .input-group input {
-        width: 200px;
-        padding: 5px;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-    }
-
-    .gorilla .input-group button {
-        padding: 5px 10px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-    }
-
-.gorilla .result {
-    text-align: center;
-}
-
-    .gorilla .result p {
-        margin-bottom: 10px;
-    }
-
-.gorilla .quick-buttons {
-    margin-top: 10px;
-    display: flex;
-    justify-content: center;
-}
-
-    .gorilla .quick-buttons button {
-        margin-right: 10px;
-    }
-
-</style>
-
-
 <div class="container gorilla">
-    <h1 class="text-center">大猩猩</h1>
-    
+    <h1 class="text-center">猩猩點燈</h1>
+    <div id="game" class="row"></div>
     <div class="row justify-content-center">
         <div class="col-sm-8">
             <div id="result" class="text-center"></div>
@@ -95,13 +31,94 @@
     </div>
 </div>
 
-
-
+<script src="~/lib/phaser3/phaser.min.js"></script>
 <script>
+    // 創建遊戲配置
+    var config = {
+      type: Phaser.AUTO,
+      width: 900,
+      height: 430,
+      parent: "game",
+      scene: {
+        preload: preload,
+        create: create,
+        update: update
+      }
+    };
+
+    // 創建遊戲實例
+    var game = new Phaser.Game(config);
+
+    let gorilla;
+    function preload() {
+        this.load.image('background', '/assets/background.webp');
+        this.load.spritesheet('gorilla', '/assets/gorilla.png', { frameWidth: 132, frameHeight: 102 });
+    }
+    
+    function create() {
+        this.add.image(0, 0, 'background').setOrigin(0, 0);
+    
+        // 添加gorilla sprite
+        gorilla = this.add.sprite(0, 340, 'gorilla');
+        gorilla.setOrigin(0, 0);
+    
+        
+        this.anims.create({
+            key: 'gorillaAnimation',
+            frames: this.anims.generateFrameNumbers('gorilla', { start: 0, end: 5 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'gorillaAnimation2',
+            frames: this.anims.generateFrameNumbers('gorilla', { start: 18, end: 24 }),
+            frameRate: 10,
+            repeat: -1
+        });
+    
+        // 播放gorilla
+        gorilla.play('gorillaAnimation');
+    }
+
+    let speed = 1;
+    let isWoof = false;
+    let closeWoof = false;
+    function update() {
+        
+        //轉向
+        if(gorilla.x >= 850){
+            gorilla.flipX = true;
+            speed = -1;
+        }else if(gorilla.x <= 50){
+            gorilla.flipX = false;
+            speed = 1;
+        }
+        
+        // 吼叫
+        if(isWoof){
+            speed = 0;
+            gorilla.play('gorillaAnimation2');
+            isWoof = false;
+        }
+
+        // 停止吼叫
+        if(closeWoof){
+           gorilla.play('gorillaAnimation');
+           closeWoof = false;
+        }
+        
+        gorilla.x += speed;
+    }
+
+    /**---- 其餘JS ----*/
+
     function submitForm() {
         var something = document.getElementById("something").value;
         var result = document.getElementById("result");
 
+        let tempSpeed = speed;
+        isWoof = true;
         fetch('/api/gorilla/todo', {
             method: 'POST',
             headers: {
@@ -109,14 +126,19 @@
             },
             body: JSON.stringify(something)
         })
-            .then(response => response.text())
-            .then(data => {
-                result.textContent = data;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                result.textContent = "發生錯誤";
-            });
+         .then(response => response.text())
+         .then(data => {
+             result.textContent = data;
+
+             setTimeout(()=>{
+                 closeWoof = true;
+                speed = tempSpeed;
+             }, 2000);
+         })
+         .catch(error => {
+             console.error('Error:', error);
+             result.textContent = "發生錯誤";
+         });
     }
 
     function fillInput(value) {

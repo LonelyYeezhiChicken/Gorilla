@@ -16,4 +16,73 @@ html {
 body {
     margin-bottom: 60px;
     background-color: #cce6ff;
+    height: 80vh;
 }
+
+h1, h3, p {
+    color: #41464b;
+}
+
+canvas {
+    display: block;
+}
+
+.gorilla .container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f2f2f2;
+}
+
+.gorilla .title {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.gorilla .input-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+    .gorilla .input-group label {
+        margin-right: 10px;
+    }
+
+    .gorilla .input-group input {
+        width: 200px;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+
+    .gorilla .input-group button {
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+
+.gorilla .result {
+    text-align: center;
+}
+
+    .gorilla .result p {
+        margin-bottom: 10px;
+    }
+
+.gorilla .quick-buttons {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+    .gorilla .quick-buttons button {
+        margin-right: 10px;
+    }

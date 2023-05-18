@@ -49,19 +49,46 @@
     // 創建遊戲實例
     var game = new Phaser.Game(config);
 
-    let gorilla;
+     let gorilla;
+     let banana;
+     let badBanana;
+     let isThrowing = false; //抛香蕉
+     let throwStartX; // 抛香蕉的起始X
+     let throwStartY; // 抛香蕉的起始Y
+     let throwEndtX; // 抛香蕉的起始Y
+     let throwDuration = 1000; // 抛香蕉時間（毫秒）
+     let throwStartTime; // 抛香蕉的開始
+     let speed = 1;
+     let isWoof = false;
+     let closeWoof = false;
+     let isAttack = false;
+     let closeAttack = false;
+     let isFall = false;
+     let tempFallSpeed = false;
     function preload() {
         this.load.image('background', '/assets/background.webp');
+        this.load.image('badBanana', '/assets/badBanana.png');
+        this.load.spritesheet('banana', '/assets/banana.png', { frameWidth: 20.5, frameHeight: 21 });
         this.load.spritesheet('gorilla', '/assets/gorilla.png', { frameWidth: 132, frameHeight: 102 });
     }
     
     function create() {
-        this.add.image(0, 0, 'background').setOrigin(0, 0);
+        this.add.image(0, 0, 'background').setOrigin(0, 0);        
+        badBanana = this.add.image(-1500, -1500, 'badBanana').setOrigin(0, 0).setScale(0.5);
     
         // 添加gorilla sprite
         gorilla = this.add.sprite(0, 340, 'gorilla');
         gorilla.setOrigin(0, 0);
+
+        banana = this.add.sprite(-1500, -1500, 'banana');
+        banana.setOrigin(0, 0);
     
+        this.anims.create({
+            key: 'bananaAnimation',
+            frames: this.anims.generateFrameNumbers('banana', { start: 0, end: 4 }),
+            frameRate: 10,
+            repeat: -1
+        });
         
         this.anims.create({
             key: 'gorillaAnimation',
@@ -76,15 +103,26 @@
             frameRate: 10,
             repeat: -1
         });
+
+        this.anims.create({
+            key: 'gorillaAnimation3',
+            frames: this.anims.generateFrameNumbers('gorilla', { start: 6, end: 10 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'gorillaAnimation4',
+            frames: this.anims.generateFrameNumbers('gorilla', { start: 12, end: 17 }),
+            frameRate: 10,
+            repeat: -1
+        });
     
         // 播放gorilla
         gorilla.play('gorillaAnimation');
     }
 
-    let speed = 1;
-    let isWoof = false;
-    let closeWoof = false;
-    function update() {
+    function update(time, delta) {
         
         //轉向
         if(gorilla.x >= 850){
@@ -102,13 +140,98 @@
             isWoof = false;
         }
 
-        // 停止吼叫
-        if(closeWoof){
-           gorilla.play('gorillaAnimation');
-           closeWoof = false;
+        // 攻擊
+        if(isAttack){
+            speed = 0;
+            gorilla.play('gorillaAnimation3');
+            
+            badBanana.x = -1500;
+            badBanana.y = -1500;
+
+            banana.x = gorilla.x;
+            banana.y = gorilla.y;
+            banana.play('bananaAnimation');
+
+            isAttack = false;
+        }
+
+        // 停止吼叫或攻擊
+        if(closeWoof || closeAttack){
+           gorilla.play('gorillaAnimation');           
+           closeWoof = false; 
+           closeAttack = false;
+        }        
+
+        // 丟香蕉
+        if (isThrowing) {
+            // 计算抛香蕉的時間
+            let progress = (time - throwStartTime) / throwDuration;
+            if (progress > 1) {
+                // 抛香蕉结束
+                isThrowing = false;
+                banana.x = -1500;
+                banana.y = -1500;
+            } else {
+                // 計算算抛香蕉的位置
+                let throwX = throwStartX + (gorilla.flipX ? -1 : 1) * progress * 400;
+                let throwY = throwStartY + 4 * progress * (400 - throwStartY) * progress;
+                banana.x = throwX;
+                banana.y = throwY;
+
+                if(throwY >= 430 && throwY <= 435){
+                    throwEndtX = throwX;
+                }
+
+                if (throwY >= 430) {
+                    // 切换香蕉
+                    banana.setVisible(false);
+                    badBanana.x = throwEndtX;
+                    badBanana.y = 400;
+                }
+            }
+        }
+
+        // 滑倒
+        if(gorilla.x >= badBanana.x - 50 && gorilla.x <= badBanana.x + 10){
+            startFall();
+        }
+
+        if (isFall) {
+           // 計算跌倒的時間
+           let progress = (time - throwStartTime) / (throwDuration - 500);
+           if (progress > 1) {
+               // 跌倒結束
+               isFall = false;
+               speed = tempFallSpeed;
+               gorilla.play('gorillaAnimation');
+            }
         }
         
+
         gorilla.x += speed;
+    }
+
+    function startFall(){
+        if (!isFall) {
+            isFall = true;
+            tempFallSpeed = speed;
+            speed = 0;
+            badBanana.x = -1500;
+            badBanana.y = -1500;
+            throwStartTime = performance.now();
+            gorilla.play('gorillaAnimation4');
+        }
+    }
+
+    function throwBanana() {
+        if (!isThrowing) {
+            throwStartX = gorilla.x;
+            throwStartY = gorilla.y;
+            throwStartTime = performance.now();
+            isThrowing = true;
+            banana.setVisible(true);
+            banana.play('bananaAnimation');
+        }
     }
 
     /**---- 其餘JS ----*/
@@ -131,7 +254,7 @@
              result.textContent = data;
 
              setTimeout(()=>{
-                 closeWoof = true;
+                closeWoof = true;
                 speed = tempSpeed;
              }, 2000);
          })
@@ -142,6 +265,14 @@
     }
 
     function fillInput(value) {
+        let tempSpeed = speed;
+        isAttack = true;
+        throwBanana();
         document.getElementById("something").value = value;
+
+        setTimeout(()=>{
+           closeAttack = true;
+           speed = tempSpeed;
+        }, 500);
     }
 </script>

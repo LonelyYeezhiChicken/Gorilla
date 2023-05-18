@@ -33,7 +33,7 @@ namespace API.Helper
             }
             catch (Exception ex)
             {
-                msg = $"猩猩腦袋壞掉了 {ex}";
+                msg = $"猩猩腦袋壞掉了 {ex.Message}";
             }
             return msg;
         }

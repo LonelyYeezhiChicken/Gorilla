@@ -10,7 +10,7 @@ namespace API.SDK
             string uri = "https://api.openai.com/v1/completions";
 
             string token = Environment.GetEnvironmentVariable("API_KEY")
-                            ?? throw new NullReferenceException("未設定連線字串環境變數");
+                            ?? throw new NullReferenceException("沒付錢還想玩啊，乖乖付錢然後把環境變數設對吧!");
 
             // Request headers.
             client.DefaultRequestHeaders.Add(

@@ -24,3 +24,5 @@ cd Gorilla\src\API
 ```
 docker run -p 1599:80 -e API_KEY=<your_gpt_key> --name my-gorilla-container gorilla-gpt:tag
 ```
+
+5. [開啟網站](http://localhost:1599/)

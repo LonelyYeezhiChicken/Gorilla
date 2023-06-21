@@ -2,32 +2,44 @@
 
 namespace API.SDK
 {
-    public class ChatGPT
+    public interface IChatGpt
     {
-        public static Result CallChatGPT(string msg)
-        {
-            HttpClient client = new();
-            string uri = "https://api.openai.com/v1/completions";
+        Task<Result> CallChatGpt(string msg);
+    }
 
-            string token = Environment.GetEnvironmentVariable("API_KEY")
+    public class ChatGpt : IChatGpt
+    {
+        private readonly HttpClient _client;
+        private readonly string _uri;
+        private readonly string _model;
+
+        public ChatGpt(IHttpClientFactory client, string uri,
+            string model = "text-davinci-003")
+        {
+            _client = client.CreateClient();
+            _uri = uri;
+            _model = model;
+
+            var apiKey1 = Environment.GetEnvironmentVariable("API_KEY")
                             ?? throw new NullReferenceException("沒付錢還想玩啊，乖乖付錢然後把環境變數設對吧!");
 
-            // Request headers.
-            client.DefaultRequestHeaders.Add(
-                "Authorization", $"Bearer {token}");
+            _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey1}");
+        }
 
-            var JsonString = @"
+        public async Task<Result> CallChatGpt(string msg)
+        {
+            var data = new
             {
-  ""model"": ""text-davinci-003"",
-  ""prompt"": ""question"",
-  ""max_tokens"": 4000,
-  ""temperature"": 0
-}
-            ".Replace("question", msg);
-            var content = new StringContent(JsonString, Encoding.UTF8, "application/json");
-            var response = client.PostAsync(uri, content).Result;
-            var JSON = response.Content.ReadAsStringAsync().Result;
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Result>(JSON);
+                model = _model,
+                prompt = msg,
+                max_tokens = 4000,
+                temperature = 0
+            };
+
+            var response = await _client.PostAsJsonAsync(_uri, data);
+            response.EnsureSuccessStatusCode();
+
+            return (await response.Content.ReadFromJsonAsync<Result>())!;
         }
     }
 

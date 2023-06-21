@@ -1,9 +1,23 @@
+using API.SDK;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton<IChatGpt>(provider =>
+{
+    var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
+    var uri = "https://api.openai.com/v1/completions"; // 您可以替換為適當的 URI
+
+    return new ChatGpt(httpClientFactory, uri);
+});
+
+
 var app = builder.Build();
+
+
 
 Console.WriteLine(@"
  ________  ________  ________  ___  ___       ___       ________          ________  ________  _________   

@@ -5,7 +5,7 @@ namespace API.Helper
 {
     public class GorillaHelper
     {
-        public static string ToDo(string? something)
+        public static async Task<string> ToDo(string? something, IChatGpt chatGpt)
         {
             string msg = "";
             try
@@ -19,7 +19,10 @@ namespace API.Helper
                     if (string.IsNullOrEmpty(q[1]))
                         msg = "聽說香蕉漲價了!";
                     else
-                        msg = $"{ChatGPT.CallChatGPT(q[1]).choices.FirstOrDefault().text}";
+                    {
+                        var req = await chatGpt.CallChatGpt(q[1]);
+                        msg = $"{req.choices.FirstOrDefault().text}";
+                    }
                 }
                 else if (something.StartsWith("猩猩數香蕉"))
                 {

@@ -1,4 +1,5 @@
 ﻿using API.Helper;
+using API.SDK;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.API
@@ -8,19 +9,21 @@ namespace API.Controllers.API
     public class GorillaController : ControllerBase
     {
         private readonly ILogger<GorillaController> _logger;
+        private readonly IChatGpt _chatGpt;
 
-        public GorillaController(ILogger<GorillaController> logger)
+        public GorillaController(ILogger<GorillaController> logger, IChatGpt chatGpt)
         {
             _logger = logger;
+            _chatGpt = chatGpt;
         }
 
         [HttpPost("todo")]
-        public IActionResult ToDo([FromBody] string something)
+        public async Task<IActionResult> ToDo([FromBody] string something)
         {
             try
             {
                 _logger.LogInformation($"inpute:{something}");
-                string result = GorillaHelper.ToDo(something);
+                string result = await GorillaHelper.ToDo(something, _chatGpt);
                 _logger.LogInformation($"output{result}");
                 return Ok(result);
             }
